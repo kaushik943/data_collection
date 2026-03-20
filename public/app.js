@@ -197,15 +197,15 @@ async function startFaceCamera() {
   try {
     closeTongueCamera("Tongue camera closed.");
     closeFaceCamera();
-    faceStream = await openCamera("user");
+    faceStream = await openCamera({ ideal: "environment" });
     showVideoStream(faceCamera, faceStream);
     closeFaceCameraButton.disabled = false;
     captureFaceFrontButton.disabled = false;
     captureFaceLeftButton.disabled = false;
     captureFaceRightButton.disabled = false;
-    faceStatus.textContent = "Front camera is open. Face photo capture ke baad camera band ho jayega.";
+    faceStatus.textContent = "Back camera is open for face capture. Photo capture ke baad camera band ho jayega.";
   } catch (error) {
-    setResult("Front face camera open nahi ho pa raha. Camera permission allow karke dubara try karein.", true);
+    setResult("Face camera open nahi ho pa raha. Camera permission allow karke dubara try karein.", true);
   }
 }
 
@@ -532,3 +532,4 @@ resetTongueCameraControls();
 resetFaceCameraControls();
 updateFaceStatus();
 updateFolderSupportState();
+

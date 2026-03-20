@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Patient Capture</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero-card">
+        <p class="eyebrow">Patient Capture</p>
+        <h1>Capture tongue, voice, and face records in one mobile flow.</h1>
+        <p class="hero-copy">
+          Choose a folder on the device, then the app will create a patient folder and save files
+          using names like pat1T, pat1F, pat1L, and pat1R.
+        </p>
+      </section>
+
+      <section class="form-card">
+        <form id="captureForm" class="capture-form">
+          <section class="setup-panel">
+            <div class="section-header compact-header">
+              <h2>Device Folder</h2>
+              <p>Android Chrome or Edge can let this app save directly into a chosen folder.</p>
+            </div>
+            <div class="camera-actions">
+              <button type="button" id="chooseFolderButton">Choose Device Folder</button>
+            </div>
+            <p id="folderStatus" class="status-line">No device folder selected yet.</p>
+          </section>
+
+          <label class="field">
+            <span>Patient ID</span>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              placeholder="Example: pat1"
+              autocomplete="off"
+              required
+            />
+          </label>
+
+          <div class="section-header">
+            <h2>Tongue Capture</h2>
+            <p>Open the back camera, take a tongue photo, or record a tongue video.</p>
+          </div>
+
+          <section class="camera-panel">
+            <video id="tongueCamera" class="camera-view" autoplay playsinline muted></video>
+            <div class="camera-actions compact-grid">
+              <button type="button" id="openTongueCamera">Open Tongue Camera</button>
+              <button type="button" id="captureTonguePhoto" disabled>Capture Tongue Photo</button>
+              <button type="button" id="startTongueVideo" disabled>Start Tongue Video</button>
+              <button type="button" id="stopTongueVideo" disabled>Stop Tongue Video</button>
+            </div>
+            <p id="tongueStatus" class="status-line">No tongue photo or video captured yet.</p>
+            <div class="preview-grid two-up">
+              <div class="preview-card">
+                <span>Tongue Photo Preview</span>
+                <img id="tonguePhotoPreview" alt="Tongue photo preview" hidden />
+              </div>
+              <div class="preview-card">
+                <span>Tongue Video Preview</span>
+                <video id="tongueVideoPreview" controls playsinline hidden></video>
+              </div>
+            </div>
+          </section>
+
+          <div class="section-header">
+            <h2>Voice Sample</h2>
+            <p>Record audio directly and keep the latest voice sample ready to save.</p>
+          </div>
+
+          <div class="voice-panel">
+            <div class="voice-actions">
+              <button type="button" id="startRecording">Start Recording</button>
+              <button type="button" id="stopRecording" disabled>Stop Recording</button>
+            </div>
+            <p id="recordingStatus" class="status-line">No voice sample recorded yet.</p>
+            <audio id="voicePreview" controls hidden></audio>
+          </div>
+
+          <div class="section-header">
+            <h2>Face Photos</h2>
+            <p>Open the front camera, then capture front, left, and right face photos.</p>
+          </div>
+
+          <section class="camera-panel">
+            <video id="faceCamera" class="camera-view" autoplay playsinline muted></video>
+            <div class="camera-actions compact-grid">
+              <button type="button" id="openFaceCamera">Open Face Camera</button>
+              <button type="button" id="captureFaceFront" disabled>Capture Front Face</button>
+              <button type="button" id="captureFaceLeft" disabled>Capture Left Face</button>
+              <button type="button" id="captureFaceRight" disabled>Capture Right Face</button>
+            </div>
+            <p id="faceStatus" class="status-line">Front, left, and right face photos are still needed.</p>
+            <div class="preview-grid three-up">
+              <div class="preview-card">
+                <span>Front Face</span>
+                <img id="faceFrontPreview" alt="Front face preview" hidden />
+              </div>
+              <div class="preview-card">
+                <span>Left Face</span>
+                <img id="faceLeftPreview" alt="Left face preview" hidden />
+              </div>
+              <div class="preview-card">
+                <span>Right Face</span>
+                <img id="faceRightPreview" alt="Right face preview" hidden />
+              </div>
+            </div>
+          </section>
+
+          <div class="notice">
+            <strong>Privacy note:</strong> This app captures sensitive personal media. Only use it
+            with consent and a protected device folder.
+          </div>
+
+          <div class="submit-wrap">
+            <button type="submit" id="submitButton" class="submit-button">Save To Device Folder</button>
+          </div>
+        </form>
+
+        <section class="result-card">
+          <h2>Submission Status</h2>
+          <p id="resultMessage">Waiting for capture.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

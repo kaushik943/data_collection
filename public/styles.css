@@ -1,0 +1,272 @@
+:root {
+  --bg-top: #f6efe2;
+  --bg-bottom: #dce4f2;
+  --panel: rgba(255, 255, 255, 0.82);
+  --text: #1f2937;
+  --muted: #667085;
+  --accent: #0d9488;
+  --accent-dark: #0f766e;
+  --danger: #b42318;
+  --success: #047857;
+  --border: rgba(15, 23, 42, 0.1);
+  --shadow: 0 24px 60px rgba(31, 41, 55, 0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(13, 148, 136, 0.15), transparent 34%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  display: flex;
+  justify-content: center;
+}
+
+.app-shell {
+  width: min(100%, 480px);
+  margin: 0 auto;
+  padding: 18px 12px 96px;
+}
+
+.hero-card,
+.form-card {
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.hero-card {
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.7rem, 7vw, 2.4rem);
+  line-height: 1.08;
+}
+
+.hero-copy {
+  margin: 14px 0 0;
+  max-width: 34ch;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.form-card {
+  padding: 18px;
+}
+
+.capture-form {
+  display: grid;
+  gap: 18px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field span,
+.section-header p,
+.notice,
+#resultMessage,
+.status-line,
+.preview-card span {
+  line-height: 1.45;
+}
+
+.field span,
+.preview-card span {
+  font-weight: 700;
+}
+
+input[type="text"],
+button {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  font: inherit;
+}
+
+input[type="text"] {
+  padding: 15px 16px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.section-header {
+  padding-top: 6px;
+}
+
+.compact-header {
+  padding-top: 0;
+}
+
+.section-header h2 {
+  font-size: 1.12rem;
+}
+
+.section-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.setup-panel,
+.camera-panel,
+.voice-panel {
+  padding: 16px;
+  border-radius: 24px;
+  background: rgba(13, 148, 136, 0.08);
+  border: 1px solid rgba(13, 148, 136, 0.16);
+}
+
+.camera-view,
+.preview-card img,
+.preview-card video,
+audio {
+  width: 100%;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.camera-view {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  margin-bottom: 12px;
+}
+
+.camera-actions,
+.voice-actions,
+.preview-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.compact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.preview-grid {
+  margin-top: 12px;
+}
+
+.two-up {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.three-up {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.preview-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--border);
+}
+
+.preview-card img,
+.preview-card video {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+button {
+  cursor: pointer;
+  padding: 15px 16px;
+  font-weight: 700;
+  background: white;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.submit-button,
+#chooseFolderButton,
+#startRecording,
+#openTongueCamera,
+#openFaceCamera,
+#startTongueVideo {
+  background: var(--accent);
+  color: white;
+  border-color: transparent;
+}
+
+.notice {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(180, 35, 24, 0.08);
+  border: 1px solid rgba(180, 35, 24, 0.14);
+}
+
+.submit-wrap {
+  position: sticky;
+  bottom: 10px;
+  padding-top: 4px;
+  background: linear-gradient(180deg, rgba(246, 239, 226, 0), rgba(246, 239, 226, 0.94) 36%);
+}
+
+.submit-button {
+  min-height: 56px;
+  border-radius: 20px;
+  box-shadow: 0 16px 32px rgba(13, 148, 136, 0.24);
+}
+
+.result-card {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid var(--border);
+}
+
+.error {
+  color: var(--danger);
+}
+
+.success {
+  color: var(--success);
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 12px 10px 92px;
+  }
+
+  .hero-card,
+  .form-card {
+    border-radius: 24px;
+  }
+
+  .compact-grid,
+  .two-up,
+  .three-up,
+  .voice-actions {
+    grid-template-columns: 1fr;
+  }
+}

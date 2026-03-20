@@ -48,9 +48,10 @@
           </div>
 
           <section class="camera-panel">
-            <video id="tongueCamera" class="camera-view" autoplay playsinline muted></video>
+            <video id="tongueCamera" class="camera-view" autoplay playsinline muted hidden></video>
             <div class="camera-actions compact-grid">
               <button type="button" id="openTongueCamera">Open Tongue Camera</button>
+              <button type="button" id="closeTongueCamera" disabled>Close Tongue Camera</button>
               <button type="button" id="captureTonguePhoto" disabled>Capture Tongue Photo</button>
               <button type="button" id="startTongueVideo" disabled>Start Tongue Video</button>
               <button type="button" id="stopTongueVideo" disabled>Stop Tongue Video</button>
@@ -88,9 +89,10 @@
           </div>
 
           <section class="camera-panel">
-            <video id="faceCamera" class="camera-view" autoplay playsinline muted></video>
+            <video id="faceCamera" class="camera-view" autoplay playsinline muted hidden></video>
             <div class="camera-actions compact-grid">
-              <button type="button" id="openFaceCamera">Open Face Camera</button>
+              <button type="button" id="openFaceCamera">Open Front Camera</button>
+              <button type="button" id="closeFaceCamera" disabled>Close Face Camera</button>
               <button type="button" id="captureFaceFront" disabled>Capture Front Face</button>
               <button type="button" id="captureFaceLeft" disabled>Capture Left Face</button>
               <button type="button" id="captureFaceRight" disabled>Capture Right Face</button>

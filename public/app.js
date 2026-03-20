@@ -11,6 +11,7 @@ const voicePreview = document.getElementById("voicePreview");
 
 const tongueCamera = document.getElementById("tongueCamera");
 const openTongueCameraButton = document.getElementById("openTongueCamera");
+const closeTongueCameraButton = document.getElementById("closeTongueCamera");
 const captureTonguePhotoButton = document.getElementById("captureTonguePhoto");
 const startTongueVideoButton = document.getElementById("startTongueVideo");
 const stopTongueVideoButton = document.getElementById("stopTongueVideo");
@@ -20,6 +21,7 @@ const tongueVideoPreview = document.getElementById("tongueVideoPreview");
 
 const faceCamera = document.getElementById("faceCamera");
 const openFaceCameraButton = document.getElementById("openFaceCamera");
+const closeFaceCameraButton = document.getElementById("closeFaceCamera");
 const captureFaceFrontButton = document.getElementById("captureFaceFront");
 const captureFaceLeftButton = document.getElementById("captureFaceLeft");
 const captureFaceRightButton = document.getElementById("captureFaceRight");
@@ -61,10 +63,16 @@ function setPreviewSource(element, blob) {
   element.hidden = false;
 }
 
-function streamToVideo(videoElement, stream) {
+function showVideoStream(videoElement, stream) {
   videoElement.srcObject = stream;
   videoElement.hidden = false;
   videoElement.play().catch(() => {});
+}
+
+function clearVideoStream(videoElement) {
+  videoElement.pause();
+  videoElement.srcObject = null;
+  videoElement.hidden = true;
 }
 
 function supportsDeviceFolderSave() {
@@ -111,7 +119,7 @@ async function chooseDeviceFolder() {
   }
 }
 
-async function openCamera(videoElement, mode) {
+async function openCamera(mode) {
   const constraints = {
     audio: false,
     video: {
@@ -126,20 +134,60 @@ async function openCamera(videoElement, mode) {
 
 function stopStream(stream) {
   if (!stream) {
-    return;
+    return null;
   }
 
   stream.getTracks().forEach((track) => track.stop());
+  return null;
+}
+
+function resetTongueCameraControls() {
+  closeTongueCameraButton.disabled = true;
+  captureTonguePhotoButton.disabled = true;
+  startTongueVideoButton.disabled = true;
+  stopTongueVideoButton.disabled = true;
+}
+
+function resetFaceCameraControls() {
+  closeFaceCameraButton.disabled = true;
+  captureFaceFrontButton.disabled = true;
+  captureFaceLeftButton.disabled = true;
+  captureFaceRightButton.disabled = true;
+}
+
+function closeTongueCamera(statusMessage = null) {
+  tongueStream = stopStream(tongueStream);
+  clearVideoStream(tongueCamera);
+  resetTongueCameraControls();
+  if (statusMessage) {
+    tongueStatus.textContent = statusMessage;
+  }
+}
+
+function closeFaceCamera(statusMessage = null) {
+  faceStream = stopStream(faceStream);
+  clearVideoStream(faceCamera);
+  resetFaceCameraControls();
+  if (statusMessage) {
+    faceStatus.textContent = statusMessage;
+  }
+}
+
+function closeAllCameras() {
+  closeTongueCamera();
+  closeFaceCamera();
 }
 
 async function startTongueCamera() {
   try {
-    stopStream(tongueStream);
-    tongueStream = await openCamera(tongueCamera, { ideal: "environment" });
-    streamToVideo(tongueCamera, tongueStream);
+    closeFaceCamera("Face camera closed.");
+    closeTongueCamera();
+    tongueStream = await openCamera({ ideal: "environment" });
+    showVideoStream(tongueCamera, tongueStream);
+    closeTongueCameraButton.disabled = false;
     captureTonguePhotoButton.disabled = false;
     startTongueVideoButton.disabled = false;
-    tongueStatus.textContent = "Tongue camera is open. Capture photo or start video.";
+    tongueStatus.textContent = "Tongue camera is open. Photo capture ke baad camera band ho jayega.";
   } catch (error) {
     setResult("Unable to open the tongue camera. Please allow camera access.", true);
   }
@@ -147,15 +195,17 @@ async function startTongueCamera() {
 
 async function startFaceCamera() {
   try {
-    stopStream(faceStream);
-    faceStream = await openCamera(faceCamera, "user");
-    streamToVideo(faceCamera, faceStream);
+    closeTongueCamera("Tongue camera closed.");
+    closeFaceCamera();
+    faceStream = await openCamera("user");
+    showVideoStream(faceCamera, faceStream);
+    closeFaceCameraButton.disabled = false;
     captureFaceFrontButton.disabled = false;
     captureFaceLeftButton.disabled = false;
     captureFaceRightButton.disabled = false;
-    faceStatus.textContent = "Face camera is open. Capture front, left, and right photos.";
+    faceStatus.textContent = "Front camera is open. Face photo capture ke baad camera band ho jayega.";
   } catch (error) {
-    setResult("Unable to open the face camera. Please allow camera access.", true);
+    setResult("Front face camera open nahi ho pa raha. Camera permission allow karke dubara try karein.", true);
   }
 }
 
@@ -181,7 +231,7 @@ async function captureTonguePhoto() {
 
   capturedTonguePhotoBlob = await captureFrame(tongueCamera);
   setPreviewSource(tonguePhotoPreview, capturedTonguePhotoBlob);
-  tongueStatus.textContent = "Tongue photo captured.";
+  closeTongueCamera("Tongue photo captured successfully. Preview neeche dikh raha hai.");
 }
 
 function createVideoRecorder(stream, onStop) {
@@ -228,13 +278,14 @@ function startTongueVideo() {
   tongueVideoRecorder = createVideoRecorder(tongueStream, (blob) => {
     capturedTongueVideoBlob = blob;
     setPreviewSource(tongueVideoPreview, capturedTongueVideoBlob);
-    tongueStatus.textContent = "Tongue video recorded.";
+    closeTongueCamera("Tongue video recorded successfully. Preview neeche dikh raha hai.");
   });
 
   tongueVideoRecorder.start();
   startTongueVideoButton.disabled = true;
   stopTongueVideoButton.disabled = false;
   captureTonguePhotoButton.disabled = true;
+  closeTongueCameraButton.disabled = true;
   tongueStatus.textContent = "Recording tongue video...";
 }
 
@@ -244,9 +295,7 @@ function stopTongueVideo() {
   }
 
   tongueVideoRecorder.stop();
-  startTongueVideoButton.disabled = false;
   stopTongueVideoButton.disabled = true;
-  captureTonguePhotoButton.disabled = false;
 }
 
 function updateFaceStatus() {
@@ -292,7 +341,9 @@ async function captureFacePhoto(position) {
     setPreviewSource(faceRightPreview, blob);
   }
 
+  closeFaceCamera();
   updateFaceStatus();
+  setResult(`${position} face photo captured. Preview neeche dikh raha hai.`);
 }
 
 async function startVoiceRecording() {
@@ -425,6 +476,7 @@ function resetCaptureState() {
   capturedFaceRightBlob = null;
   recordedAudioBlob = null;
 
+  closeAllCameras();
   setPreviewSource(tonguePhotoPreview, null);
   setPreviewSource(tongueVideoPreview, null);
   setPreviewSource(faceFrontPreview, null);
@@ -464,15 +516,19 @@ async function submitForm(event) {
 
 chooseFolderButton.addEventListener("click", chooseDeviceFolder);
 openTongueCameraButton.addEventListener("click", startTongueCamera);
+closeTongueCameraButton.addEventListener("click", () => closeTongueCamera("Tongue camera closed."));
 captureTonguePhotoButton.addEventListener("click", captureTonguePhoto);
 startTongueVideoButton.addEventListener("click", startTongueVideo);
 stopTongueVideoButton.addEventListener("click", stopTongueVideo);
 openFaceCameraButton.addEventListener("click", startFaceCamera);
+closeFaceCameraButton.addEventListener("click", () => closeFaceCamera("Face camera closed."));
 captureFaceFrontButton.addEventListener("click", () => captureFacePhoto("front"));
 captureFaceLeftButton.addEventListener("click", () => captureFacePhoto("left"));
 captureFaceRightButton.addEventListener("click", () => captureFacePhoto("right"));
 startRecordingButton.addEventListener("click", startVoiceRecording);
 stopRecordingButton.addEventListener("click", stopVoiceRecording);
 form.addEventListener("submit", submitForm);
+resetTongueCameraControls();
+resetFaceCameraControls();
 updateFaceStatus();
 updateFolderSupportState();

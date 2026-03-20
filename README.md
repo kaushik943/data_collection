@@ -40,13 +40,13 @@ pat1/
 
 ## Local Run
 
-1. Start a static server or the existing local server:
+Use a secure localhost/static server when testing camera and folder access. One easy option is:
 
 ```powershell
-npm.cmd start
+npx.cmd vercel dev
 ```
 
-2. Open `http://localhost:3000`
+Then open the local URL it prints.
 
 ## Deploy To Vercel
 

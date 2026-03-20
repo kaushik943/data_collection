@@ -1,16 +1,6 @@
 {
-  "name": "data-collector-mobile-app",
+  "name": "data-collection",
   "version": "1.0.0",
   "private": true,
-  "description": "Mobile-first web app to capture tongue media, voice samples, and face photos, then save them into local folders.",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "multer": "^2.0.2"
-  }
+  "description": "Static mobile patient capture app for Vercel device-folder saving."
 }

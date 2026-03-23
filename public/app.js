@@ -146,17 +146,27 @@ function setPreview(element, placeholder, blob) {
   placeholder.hidden = true;
 }
 
-function triggerNativeCamera(input, mode) {
-  if (mode) {
-    input.setAttribute("capture", mode);
-  } else {
-    input.removeAttribute("capture");
+function triggerNativeCamera(input, options = {}) {
+  const { kind = "image", facingMode = "environment" } = options;
+
+  input.value = "";
+  input.setAttribute("accept", kind === "video" ? "video/*" : "image/*");
+  input.setAttribute("capture", facingMode);
+
+  if (typeof input.showPicker === "function") {
+    try {
+      input.showPicker();
+      return;
+    } catch (error) {
+      // Some browsers block showPicker() here, so fall back to click().
+    }
   }
+
   input.click();
 }
 
 function openFaceCapture(input) {
-  triggerNativeCamera(input);
+  triggerNativeCamera(input, { kind: "image", facingMode: "environment" });
 }
 
 function updateReview() {
@@ -461,8 +471,12 @@ function setButtonLabels() {
 
 setButtonLabels();
 
-wireStepButton("retakeTonguePhoto", () => triggerNativeCamera(tonguePhotoInput, "environment"));
-wireStepButton("retakeTongueVideo", () => triggerNativeCamera(tongueVideoInput, "environment"));
+wireStepButton("retakeTonguePhoto", () =>
+  triggerNativeCamera(tonguePhotoInput, { kind: "image", facingMode: "environment" })
+);
+wireStepButton("retakeTongueVideo", () =>
+  triggerNativeCamera(tongueVideoInput, { kind: "video", facingMode: "environment" })
+);
 wireStepButton("retakeFaceFront", () => openFaceCapture(faceFrontInput));
 wireStepButton("retakeFaceLeft", () => openFaceCapture(faceLeftInput));
 wireStepButton("retakeFaceRight", () => openFaceCapture(faceRightInput));
@@ -538,5 +552,6 @@ faceRightInput.addEventListener("change", () => {
 resetCaptureState();
 updateFolderSupportState();
 showStep(1);
+
 
 

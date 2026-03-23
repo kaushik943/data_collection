@@ -168,18 +168,25 @@ select {
   border: 1px solid rgba(13, 148, 136, 0.16);
 }
 
+.preview-large {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+}
+
 .preview-large img,
 .preview-large video,
 audio {
   width: 100%;
+  max-height: min(62vh, 460px);
   border-radius: 18px;
   background: rgba(15, 23, 42, 0.08);
 }
 
 .preview-large img,
 .preview-large video {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
 }
 
 .placeholder-card {
@@ -304,3 +311,4 @@ select:disabled {
     grid-template-columns: 1fr;
   }
 }
+

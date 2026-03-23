@@ -12,7 +12,7 @@
         <p class="eyebrow">Patient Capture</p>
         <h1>One step at a time.</h1>
         <p class="hero-copy">
-          Mobile camera directly khulega, preview dikhega, retake kar paoge, aur phir next step.
+          Mobile camera app directly khulega, preview dikhega, retake kar paoge, aur phir next step.
         </p>
       </section>
 
@@ -26,7 +26,7 @@
           <section class="wizard-step active" data-step="1">
             <div class="section-header compact-header">
               <h2>Setup</h2>
-              <p>Choose device folder, enter patient ID, and select preferred face camera.</p>
+              <p>Choose device folder and enter patient ID.</p>
             </div>
 
             <section class="setup-panel">
@@ -39,7 +39,9 @@
             <label class="field">
               <span>Patient ID</span>
               <input type="text" id="code" name="code" placeholder="Example: pat1" autocomplete="off" required />
-            </label><div class="step-actions">
+            </label>
+
+            <div class="step-actions">
               <button type="button" id="goStep2" class="primary-button">Next</button>
             </div>
           </section>
@@ -47,9 +49,9 @@
           <section class="wizard-step" data-step="2">
             <div class="section-header compact-header">
               <h2>Tongue Photo</h2>
-              <p>Back camera khulega. Photo lo, preview dekho, ya retake karo.</p>
+              <p>Camera app khulega. Photo lo, preview dekho, ya retake karo.</p>
             </div>
-            <input id="tonguePhotoInput" type="file" accept="image/*" hidden />
+            <input id="tonguePhotoInput" type="file" accept="image/*" capture="environment" hidden />
             <div class="preview-large">
               <img id="tonguePhotoPreview" alt="Tongue photo preview" hidden />
               <div id="tonguePhotoPlaceholder" class="placeholder-card">No tongue photo yet</div>
@@ -65,9 +67,9 @@
           <section class="wizard-step" data-step="3">
             <div class="section-header compact-header">
               <h2>Tongue Video</h2>
-              <p>This step is optional. Record video if needed, otherwise skip.</p>
+              <p>This step is optional. Camera app se video record karo, otherwise skip.</p>
             </div>
-            <input id="tongueVideoInput" type="file" accept="video/*" hidden />
+            <input id="tongueVideoInput" type="file" accept="video/*" capture="environment" hidden />
             <div class="preview-large">
               <video id="tongueVideoPreview" controls playsinline hidden></video>
               <div id="tongueVideoPlaceholder" class="placeholder-card">No tongue video yet</div>
@@ -102,9 +104,9 @@
           <section class="wizard-step" data-step="5">
             <div class="section-header compact-header">
               <h2>Front Face</h2>
-              <p>Selected mobile camera khulega. Front face seedha rakhkar photo lo.</p>
+              <p>Camera app khulega. Front face seedha rakhkar photo lo.</p>
             </div>
-            <input id="faceFrontInput" type="file" accept="image/*" hidden />
+            <input id="faceFrontInput" type="file" accept="image/*" capture="environment" hidden />
             <div class="preview-large">
               <img id="faceFrontPreview" alt="Front face preview" hidden />
               <div id="faceFrontPlaceholder" class="placeholder-card">No front face photo yet</div>
@@ -122,7 +124,7 @@
               <h2>Left Face</h2>
               <p>Ab left side dikha kar photo lo.</p>
             </div>
-            <input id="faceLeftInput" type="file" accept="image/*" hidden />
+            <input id="faceLeftInput" type="file" accept="image/*" capture="environment" hidden />
             <div class="preview-large">
               <img id="faceLeftPreview" alt="Left face preview" hidden />
               <div id="faceLeftPlaceholder" class="placeholder-card">No left face photo yet</div>
@@ -140,7 +142,7 @@
               <h2>Right Face</h2>
               <p>Ab right side dikha kar photo lo.</p>
             </div>
-            <input id="faceRightInput" type="file" accept="image/*" hidden />
+            <input id="faceRightInput" type="file" accept="image/*" capture="environment" hidden />
             <div class="preview-large">
               <img id="faceRightPreview" alt="Right face preview" hidden />
               <div id="faceRightPlaceholder" class="placeholder-card">No right face photo yet</div>
@@ -192,5 +194,3 @@
     <script src="/app.js"></script>
   </body>
 </html>
-
-

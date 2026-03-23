@@ -103,6 +103,7 @@ h1 {
 }
 
 input[type="text"],
+select,
 button {
   width: 100%;
   border-radius: 16px;
@@ -110,7 +111,8 @@ button {
   font: inherit;
 }
 
-input[type="text"] {
+input[type="text"],
+select {
   padding: 15px 16px;
   background: rgba(255, 255, 255, 0.92);
 }
@@ -141,19 +143,12 @@ input[type="text"] {
   border: 1px solid rgba(13, 148, 136, 0.16);
 }
 
-.camera-view,
 .preview-card img,
 .preview-card video,
 audio {
   width: 100%;
   border-radius: 18px;
   background: rgba(15, 23, 42, 0.08);
-}
-
-.camera-view {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  margin-bottom: 12px;
 }
 
 .camera-actions,
@@ -194,6 +189,20 @@ audio {
   object-fit: cover;
 }
 
+.confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.confirm-row input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
 button {
   cursor: pointer;
   padding: 15px 16px;
@@ -201,7 +210,8 @@ button {
   background: white;
 }
 
-button:disabled {
+button:disabled,
+input:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -209,9 +219,11 @@ button:disabled {
 .submit-button,
 #chooseFolderButton,
 #startRecording,
-#openTongueCamera,
-#openFaceCamera,
-#startTongueVideo {
+#openTonguePhotoCamera,
+#openTongueVideoCamera,
+#openFaceFrontCamera,
+#openFaceLeftCamera,
+#openFaceRightCamera {
   background: var(--accent);
   color: white;
   border-color: transparent;

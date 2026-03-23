@@ -1,40 +1,51 @@
+const steps = Array.from(document.querySelectorAll(".wizard-step"));
+const stepCounter = document.getElementById("stepCounter");
+const progressFill = document.getElementById("progressFill");
 const form = document.getElementById("captureForm");
 const resultMessage = document.getElementById("resultMessage");
-const submitButton = document.getElementById("submitButton");
 const chooseFolderButton = document.getElementById("chooseFolderButton");
 const folderStatus = document.getElementById("folderStatus");
+const codeInput = document.getElementById("code");
 const faceCameraMode = document.getElementById("faceCameraMode");
+const saveButton = document.getElementById("saveButton");
 
 const tonguePhotoInput = document.getElementById("tonguePhotoInput");
 const tongueVideoInput = document.getElementById("tongueVideoInput");
-const openTonguePhotoCameraButton = document.getElementById("openTonguePhotoCamera");
-const openTongueVideoCameraButton = document.getElementById("openTongueVideoCamera");
-const tongueStatus = document.getElementById("tongueStatus");
 const tonguePhotoPreview = document.getElementById("tonguePhotoPreview");
 const tongueVideoPreview = document.getElementById("tongueVideoPreview");
-const confirmTonguePhoto = document.getElementById("confirmTonguePhoto");
-const confirmTongueVideo = document.getElementById("confirmTongueVideo");
+const tonguePhotoPlaceholder = document.getElementById("tonguePhotoPlaceholder");
+const tongueVideoPlaceholder = document.getElementById("tongueVideoPlaceholder");
+const tonguePhotoStatus = document.getElementById("tonguePhotoStatus");
+const tongueVideoStatus = document.getElementById("tongueVideoStatus");
 
 const startRecordingButton = document.getElementById("startRecording");
 const stopRecordingButton = document.getElementById("stopRecording");
 const recordingStatus = document.getElementById("recordingStatus");
 const voicePreview = document.getElementById("voicePreview");
-const confirmVoice = document.getElementById("confirmVoice");
 
 const faceFrontInput = document.getElementById("faceFrontInput");
 const faceLeftInput = document.getElementById("faceLeftInput");
 const faceRightInput = document.getElementById("faceRightInput");
-const openFaceFrontCameraButton = document.getElementById("openFaceFrontCamera");
-const openFaceLeftCameraButton = document.getElementById("openFaceLeftCamera");
-const openFaceRightCameraButton = document.getElementById("openFaceRightCamera");
-const faceStatus = document.getElementById("faceStatus");
 const faceFrontPreview = document.getElementById("faceFrontPreview");
 const faceLeftPreview = document.getElementById("faceLeftPreview");
 const faceRightPreview = document.getElementById("faceRightPreview");
-const confirmFaceFront = document.getElementById("confirmFaceFront");
-const confirmFaceLeft = document.getElementById("confirmFaceLeft");
-const confirmFaceRight = document.getElementById("confirmFaceRight");
+const faceFrontPlaceholder = document.getElementById("faceFrontPlaceholder");
+const faceLeftPlaceholder = document.getElementById("faceLeftPlaceholder");
+const faceRightPlaceholder = document.getElementById("faceRightPlaceholder");
+const faceFrontStatus = document.getElementById("faceFrontStatus");
+const faceLeftStatus = document.getElementById("faceLeftStatus");
+const faceRightStatus = document.getElementById("faceRightStatus");
 
+const reviewPatientId = document.getElementById("reviewPatientId");
+const reviewFolder = document.getElementById("reviewFolder");
+const reviewTonguePhoto = document.getElementById("reviewTonguePhoto");
+const reviewTongueVideo = document.getElementById("reviewTongueVideo");
+const reviewVoice = document.getElementById("reviewVoice");
+const reviewFaceFront = document.getElementById("reviewFaceFront");
+const reviewFaceLeft = document.getElementById("reviewFaceLeft");
+const reviewFaceRight = document.getElementById("reviewFaceRight");
+
+let currentStep = 1;
 let rootDirectoryHandle = null;
 let recordedAudioBlob = null;
 let voiceRecorder = null;
@@ -51,24 +62,6 @@ function setResult(message, isError = false) {
   resultMessage.textContent = message;
   resultMessage.classList.toggle("error", isError);
   resultMessage.classList.toggle("success", !isError);
-}
-
-function setPreviewSource(element, blob) {
-  if (!blob) {
-    element.hidden = true;
-    element.removeAttribute("src");
-    return;
-  }
-
-  element.src = URL.createObjectURL(blob);
-  element.hidden = false;
-}
-
-function enableConfirmation(checkbox, enabled) {
-  checkbox.disabled = !enabled;
-  if (!enabled) {
-    checkbox.checked = false;
-  }
 }
 
 function supportsDeviceFolderSave() {
@@ -105,14 +98,53 @@ async function chooseDeviceFolder() {
   try {
     rootDirectoryHandle = await window.showDirectoryPicker({ mode: "readwrite" });
     updateFolderSupportState();
+    updateReview();
     setResult(`Device folder selected: ${rootDirectoryHandle.name}`);
   } catch (error) {
-    if (error && error.name === "AbortError") {
-      return;
+    if (error?.name !== "AbortError") {
+      setResult("Could not access the selected device folder.", true);
     }
-
-    setResult("Could not access the selected device folder.", true);
   }
+}
+
+function updateProgress() {
+  stepCounter.textContent = `Step ${currentStep} of ${steps.length}`;
+  progressFill.style.width = `${(currentStep / steps.length) * 100}%`;
+}
+
+function showStep(stepNumber) {
+  currentStep = stepNumber;
+  steps.forEach((step, index) => {
+    step.classList.toggle("active", index + 1 === stepNumber);
+  });
+  updateProgress();
+  updateReview();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function nextStep() {
+  if (currentStep < steps.length) {
+    showStep(currentStep + 1);
+  }
+}
+
+function prevStep() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+function setPreview(element, placeholder, blob) {
+  if (!blob) {
+    element.hidden = true;
+    element.removeAttribute("src");
+    placeholder.hidden = false;
+    return;
+  }
+
+  element.src = URL.createObjectURL(blob);
+  element.hidden = false;
+  placeholder.hidden = true;
 }
 
 function triggerNativeCamera(input, mode) {
@@ -121,85 +153,71 @@ function triggerNativeCamera(input, mode) {
   } else {
     input.removeAttribute("capture");
   }
-
   input.click();
 }
 
-function updateTongueStatus() {
-  const confirmedItems = [];
-
-  if (confirmTonguePhoto.checked) {
-    confirmedItems.push("photo");
-  }
-
-  if (confirmTongueVideo.checked) {
-    confirmedItems.push("video");
-  }
-
-  if (confirmedItems.length === 0) {
-    tongueStatus.textContent = "Take tongue photo or video, then confirm it.";
-    return;
-  }
-
-  tongueStatus.textContent = `Tongue ${confirmedItems.join(" and ")} confirmed.`;
+function openFaceCapture(input) {
+  triggerNativeCamera(input, faceCameraMode.value);
 }
 
-function updateFaceStatus() {
-  const completed = [];
-
-  if (confirmFaceFront.checked) {
-    completed.push("front");
-  }
-
-  if (confirmFaceLeft.checked) {
-    completed.push("left");
-  }
-
-  if (confirmFaceRight.checked) {
-    completed.push("right");
-  }
-
-  if (completed.length === 0) {
-    faceStatus.textContent = "Capture front, left, and right face photos and confirm each.";
-    return;
-  }
-
-  faceStatus.textContent = `Confirmed: ${completed.join(", ")}.`;
+function updateReview() {
+  const patientId = sanitizePatientId(codeInput.value);
+  reviewPatientId.textContent = patientId || "-";
+  reviewFolder.textContent = rootDirectoryHandle?.name || "-";
+  reviewTonguePhoto.textContent = capturedTonguePhotoBlob ? "Ready" : "Pending";
+  reviewTongueVideo.textContent = capturedTongueVideoBlob ? "Ready" : "Skipped";
+  reviewVoice.textContent = recordedAudioBlob ? "Ready" : "Pending";
+  reviewFaceFront.textContent = capturedFaceFrontBlob ? "Ready" : "Pending";
+  reviewFaceLeft.textContent = capturedFaceLeftBlob ? "Ready" : "Pending";
+  reviewFaceRight.textContent = capturedFaceRightBlob ? "Ready" : "Pending";
 }
 
-function handleImageSelection(input, setter, previewElement, checkbox, button, successMessage, retakeLabel) {
+function requireSetup() {
+  if (!supportsDeviceFolderSave()) {
+    return "This browser does not support saving to a chosen device folder. Use Android Chrome or Edge on HTTPS.";
+  }
+  if (!rootDirectoryHandle) {
+    return "Choose a device folder first.";
+  }
+  if (!sanitizePatientId(codeInput.value)) {
+    return "Enter patient ID first.";
+  }
+  return null;
+}
+
+function handleImageFile(input, onSet, preview, placeholder, statusElement, emptyText, filledText, button) {
   const file = input.files?.[0] || null;
-  setter(file);
-  setPreviewSource(previewElement, file);
-  enableConfirmation(checkbox, Boolean(file));
-  if (file) {
-    button.textContent = retakeLabel;
-    setResult(successMessage);
+  onSet(file);
+  setPreview(preview, placeholder, file);
+  statusElement.textContent = file ? filledText : emptyText;
+  if (button) {
+    button.textContent = file ? button.dataset.retake : button.dataset.open;
   }
+  updateReview();
 }
 
 function setTonguePhoto(file) {
   capturedTonguePhotoBlob = file;
 }
-
 function setTongueVideo(file) {
   capturedTongueVideoBlob = file;
 }
-
 function setFaceFront(file) {
   capturedFaceFrontBlob = file;
 }
-
 function setFaceLeft(file) {
   capturedFaceLeftBlob = file;
 }
-
 function setFaceRight(file) {
   capturedFaceRightBlob = file;
 }
 
-function openFaceCapture(input) {
-  triggerNativeCamera(input, faceCameraMode.value);
+function startVoiceStreamCleanup() {
+  if (!voiceStream) {
+    return;
+  }
+  voiceStream.getTracks().forEach((track) => track.stop());
+  voiceStream = null;
 }
 
 async function startVoiceRecording() {
@@ -218,11 +236,11 @@ async function startVoiceRecording() {
       recordedAudioBlob = new Blob(voiceChunks, {
         type: voiceRecorder.mimeType || "audio/webm"
       });
-
-      setPreviewSource(voicePreview, recordedAudioBlob);
-      recordingStatus.textContent = "Voice sample recorded. Preview suniye aur confirm tick kariye.";
-      enableConfirmation(confirmVoice, true);
-      stopStream();
+      voicePreview.src = URL.createObjectURL(recordedAudioBlob);
+      voicePreview.hidden = false;
+      recordingStatus.textContent = "Voice sample ready. Sun lijiye, phir next kariye.";
+      startVoiceStreamCleanup();
+      updateReview();
     });
 
     voiceRecorder.start();
@@ -234,67 +252,35 @@ async function startVoiceRecording() {
   }
 }
 
-function stopStream() {
-  if (!voiceStream) {
-    return;
-  }
-
-  voiceStream.getTracks().forEach((track) => track.stop());
-  voiceStream = null;
-}
-
 function stopVoiceRecording() {
   if (!voiceRecorder || voiceRecorder.state === "inactive") {
     return;
   }
-
   voiceRecorder.stop();
   startRecordingButton.disabled = false;
   stopRecordingButton.disabled = true;
 }
 
-function isTongueConfirmed() {
-  return Boolean(
-    (capturedTonguePhotoBlob && confirmTonguePhoto.checked) ||
-      (capturedTongueVideoBlob && confirmTongueVideo.checked)
-  );
-}
-
-function validateBeforeSubmit() {
-  const patientId = sanitizePatientId(document.getElementById("code").value);
-
-  if (!supportsDeviceFolderSave()) {
-    return "This browser does not support saving to a chosen device folder. Use Android Chrome or Edge on HTTPS.";
+function validateFinal() {
+  const setupError = requireSetup();
+  if (setupError) {
+    return setupError;
   }
-
-  if (!rootDirectoryHandle) {
-    return "Choose a device folder before saving.";
+  if (!capturedTonguePhotoBlob) {
+    return "Tongue photo required hai.";
   }
-
-  if (!patientId) {
-    return "Patient ID is required.";
+  if (!recordedAudioBlob) {
+    return "Voice sample required hai.";
   }
-
-  if (!isTongueConfirmed()) {
-    return "Tongue photo ya tongue video capture karke confirm tick kariye.";
+  if (!capturedFaceFrontBlob) {
+    return "Front face photo required hai.";
   }
-
-  if (!recordedAudioBlob || !confirmVoice.checked) {
-    return "Voice sample record karke confirm tick kariye.";
+  if (!capturedFaceLeftBlob) {
+    return "Left face photo required hai.";
   }
-
-  if (!capturedFaceFrontBlob || !confirmFaceFront.checked) {
-    return "Front face capture karke confirm tick kariye.";
+  if (!capturedFaceRightBlob) {
+    return "Right face photo required hai.";
   }
-
-  if (!capturedFaceLeftBlob || !confirmFaceLeft.checked) {
-    return "Left face capture karke confirm tick kariye.";
-  }
-
-  if (!capturedFaceRightBlob || !confirmFaceRight.checked) {
-    return "Right face capture karke confirm tick kariye.";
-  }
-
   return null;
 }
 
@@ -305,6 +291,11 @@ async function writeBlobToFile(directoryHandle, fileName, blob) {
   await writable.close();
 }
 
+function getExtension(file, fallback) {
+  const parts = String(file?.name || "").split(".");
+  return parts.length > 1 ? parts.pop() : fallback;
+}
+
 async function saveToDevice(patientId) {
   const patientFolder = await rootDirectoryHandle.getDirectoryHandle(patientId, { create: true });
   const tongueFolder = await patientFolder.getDirectoryHandle("tongue", { create: true });
@@ -313,43 +304,22 @@ async function saveToDevice(patientId) {
 
   const savedFiles = [];
 
-  if (capturedTonguePhotoBlob && confirmTonguePhoto.checked) {
-    const fileName = `${patientId}T.${capturedTonguePhotoBlob.name.split(".").pop() || "jpg"}`;
-    await writeBlobToFile(tongueFolder, fileName, capturedTonguePhotoBlob);
-    savedFiles.push(`tongue/${fileName}`);
+  await writeBlobToFile(tongueFolder, `${patientId}T.${getExtension(capturedTonguePhotoBlob, "jpg")}`, capturedTonguePhotoBlob);
+  savedFiles.push("tongue photo");
+
+  if (capturedTongueVideoBlob) {
+    await writeBlobToFile(tongueFolder, `${patientId}TV.${getExtension(capturedTongueVideoBlob, "mp4")}`, capturedTongueVideoBlob);
+    savedFiles.push("tongue video");
   }
 
-  if (capturedTongueVideoBlob && confirmTongueVideo.checked) {
-    const fileName = `${patientId}TV.${capturedTongueVideoBlob.name.split(".").pop() || "mp4"}`;
-    await writeBlobToFile(tongueFolder, fileName, capturedTongueVideoBlob);
-    savedFiles.push(`tongue/${fileName}`);
-  }
+  await writeBlobToFile(voiceFolder, `${patientId}V.webm`, recordedAudioBlob);
+  savedFiles.push("voice sample");
+  await writeBlobToFile(faceFolder, `${patientId}F.${getExtension(capturedFaceFrontBlob, "jpg")}`, capturedFaceFrontBlob);
+  await writeBlobToFile(faceFolder, `${patientId}L.${getExtension(capturedFaceLeftBlob, "jpg")}`, capturedFaceLeftBlob);
+  await writeBlobToFile(faceFolder, `${patientId}R.${getExtension(capturedFaceRightBlob, "jpg")}`, capturedFaceRightBlob);
+  savedFiles.push("front face", "left face", "right face");
 
-  if (recordedAudioBlob && confirmVoice.checked) {
-    const fileName = `${patientId}V.webm`;
-    await writeBlobToFile(voiceFolder, fileName, recordedAudioBlob);
-    savedFiles.push(`voice/${fileName}`);
-  }
-
-  const faceFiles = [
-    { blob: capturedFaceFrontBlob, confirmed: confirmFaceFront.checked, fileName: `${patientId}F.jpg` },
-    { blob: capturedFaceLeftBlob, confirmed: confirmFaceLeft.checked, fileName: `${patientId}L.jpg` },
-    { blob: capturedFaceRightBlob, confirmed: confirmFaceRight.checked, fileName: `${patientId}R.jpg` }
-  ];
-
-  for (const faceFile of faceFiles) {
-    if (!faceFile.blob || !faceFile.confirmed) {
-      continue;
-    }
-
-    await writeBlobToFile(faceFolder, faceFile.fileName, faceFile.blob);
-    savedFiles.push(`face/${faceFile.fileName}`);
-  }
-
-  return {
-    patientFolderName: patientFolder.name,
-    savedFiles
-  };
+  return { patientFolderName: patientFolder.name, savedFiles };
 }
 
 function resetCaptureState() {
@@ -365,150 +335,208 @@ function resetCaptureState() {
   faceFrontInput.value = "";
   faceLeftInput.value = "";
   faceRightInput.value = "";
+  voicePreview.hidden = true;
+  voicePreview.removeAttribute("src");
 
-  setPreviewSource(tonguePhotoPreview, null);
-  setPreviewSource(tongueVideoPreview, null);
-  setPreviewSource(faceFrontPreview, null);
-  setPreviewSource(faceLeftPreview, null);
-  setPreviewSource(faceRightPreview, null);
-  setPreviewSource(voicePreview, null);
+  setPreview(tonguePhotoPreview, tonguePhotoPlaceholder, null);
+  setPreview(tongueVideoPreview, tongueVideoPlaceholder, null);
+  setPreview(faceFrontPreview, faceFrontPlaceholder, null);
+  setPreview(faceLeftPreview, faceLeftPlaceholder, null);
+  setPreview(faceRightPreview, faceRightPlaceholder, null);
 
-  enableConfirmation(confirmTonguePhoto, false);
-  enableConfirmation(confirmTongueVideo, false);
-  enableConfirmation(confirmFaceFront, false);
-  enableConfirmation(confirmFaceLeft, false);
-  enableConfirmation(confirmFaceRight, false);
-  enableConfirmation(confirmVoice, false);
-
-  openTonguePhotoCameraButton.textContent = "Take Tongue Photo";
-  openTongueVideoCameraButton.textContent = "Record Tongue Video";
-  openFaceFrontCameraButton.textContent = "Take Front Face";
-  openFaceLeftCameraButton.textContent = "Take Left Face";
-  openFaceRightCameraButton.textContent = "Take Right Face";
-
-  tongueStatus.textContent = "Take tongue photo or video, then confirm it.";
-  faceStatus.textContent = "Capture front, left, and right face photos and confirm each.";
+  tonguePhotoStatus.textContent = "Take the tongue photo to continue.";
+  tongueVideoStatus.textContent = "You can record a tongue video or skip this step.";
   recordingStatus.textContent = "No voice sample recorded yet.";
+  faceFrontStatus.textContent = "Take the front face photo to continue.";
+  faceLeftStatus.textContent = "Take the left face photo to continue.";
+  faceRightStatus.textContent = "Take the right face photo to continue.";
+
+  document.querySelectorAll("[data-open]").forEach((button) => {
+    button.textContent = button.dataset.open;
+  });
+
+  updateReview();
 }
 
 async function submitForm(event) {
   event.preventDefault();
-
-  const validationError = validateBeforeSubmit();
+  const validationError = validateFinal();
   if (validationError) {
     setResult(validationError, true);
     return;
   }
 
-  const patientId = sanitizePatientId(document.getElementById("code").value);
-  submitButton.disabled = true;
+  const patientId = sanitizePatientId(codeInput.value);
+  saveButton.disabled = true;
   setResult("Saving files to the chosen device folder...");
 
   try {
     const result = await saveToDevice(patientId);
     setResult(`Saved ${result.savedFiles.length} files in device folder ${result.patientFolderName}.`);
     form.reset();
+    rootDirectoryHandle = null;
+    updateFolderSupportState();
     resetCaptureState();
+    showStep(1);
   } catch (error) {
     setResult(error.message || "Failed to save into the chosen device folder.", true);
   } finally {
-    submitButton.disabled = false;
+    saveButton.disabled = false;
   }
 }
 
 chooseFolderButton.addEventListener("click", chooseDeviceFolder);
-openTonguePhotoCameraButton.addEventListener("click", () => triggerNativeCamera(tonguePhotoInput, "environment"));
-openTongueVideoCameraButton.addEventListener("click", () => triggerNativeCamera(tongueVideoInput, "environment"));
-openFaceFrontCameraButton.addEventListener("click", () => openFaceCapture(faceFrontInput));
-openFaceLeftCameraButton.addEventListener("click", () => openFaceCapture(faceLeftInput));
-openFaceRightCameraButton.addEventListener("click", () => openFaceCapture(faceRightInput));
+codeInput.addEventListener("input", updateReview);
+faceCameraMode.addEventListener("change", updateReview);
+
+function wireStepButton(id, handler) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.addEventListener("click", handler);
+  }
+}
+
+wireStepButton("goStep2", () => {
+  const error = requireSetup();
+  if (error) {
+    setResult(error, true);
+    return;
+  }
+  nextStep();
+});
+wireStepButton("step2Back", prevStep);
+wireStepButton("step2Next", () => {
+  if (!capturedTonguePhotoBlob) {
+    setResult("Tongue photo le lijiye phir next karein.", true);
+    return;
+  }
+  nextStep();
+});
+wireStepButton("step3Back", prevStep);
+wireStepButton("step3Next", nextStep);
+wireStepButton("step4Back", prevStep);
+wireStepButton("step4Next", () => {
+  if (!recordedAudioBlob) {
+    setResult("Voice sample record kijiye phir next karein.", true);
+    return;
+  }
+  nextStep();
+});
+wireStepButton("step5Back", prevStep);
+wireStepButton("step5Next", () => {
+  if (!capturedFaceFrontBlob) {
+    setResult("Front face photo lijiye phir next karein.", true);
+    return;
+  }
+  nextStep();
+});
+wireStepButton("step6Back", prevStep);
+wireStepButton("step6Next", () => {
+  if (!capturedFaceLeftBlob) {
+    setResult("Left face photo lijiye phir next karein.", true);
+    return;
+  }
+  nextStep();
+});
+wireStepButton("step7Back", prevStep);
+wireStepButton("step7Next", () => {
+  if (!capturedFaceRightBlob) {
+    setResult("Right face photo lijiye phir next karein.", true);
+    return;
+  }
+  nextStep();
+});
+wireStepButton("step8Back", prevStep);
+
+function setButtonLabels() {
+  document.getElementById("retakeTonguePhoto").dataset.open = "Open Camera";
+  document.getElementById("retakeTonguePhoto").dataset.retake = "Retake";
+  document.getElementById("retakeTongueVideo").dataset.open = "Record Video";
+  document.getElementById("retakeTongueVideo").dataset.retake = "Retake Video";
+  document.getElementById("retakeFaceFront").dataset.open = "Open Camera";
+  document.getElementById("retakeFaceFront").dataset.retake = "Retake";
+  document.getElementById("retakeFaceLeft").dataset.open = "Open Camera";
+  document.getElementById("retakeFaceLeft").dataset.retake = "Retake";
+  document.getElementById("retakeFaceRight").dataset.open = "Open Camera";
+  document.getElementById("retakeFaceRight").dataset.retake = "Retake";
+}
+
+setButtonLabels();
+
+wireStepButton("retakeTonguePhoto", () => triggerNativeCamera(tonguePhotoInput, "environment"));
+wireStepButton("retakeTongueVideo", () => triggerNativeCamera(tongueVideoInput, "environment"));
+wireStepButton("retakeFaceFront", () => openFaceCapture(faceFrontInput));
+wireStepButton("retakeFaceLeft", () => openFaceCapture(faceLeftInput));
+wireStepButton("retakeFaceRight", () => openFaceCapture(faceRightInput));
 
 startRecordingButton.addEventListener("click", startVoiceRecording);
 stopRecordingButton.addEventListener("click", stopVoiceRecording);
 form.addEventListener("submit", submitForm);
 
-confirmTonguePhoto.addEventListener("change", updateTongueStatus);
-confirmTongueVideo.addEventListener("change", updateTongueStatus);
-confirmFaceFront.addEventListener("change", updateFaceStatus);
-confirmFaceLeft.addEventListener("change", updateFaceStatus);
-confirmFaceRight.addEventListener("change", updateFaceStatus);
-
-voicePreview.addEventListener("loadeddata", () => {
-  recordingStatus.textContent = "Voice preview ready. Confirm tick kariye.";
-});
-
 tonguePhotoInput.addEventListener("change", () => {
-  handleImageSelection(
+  handleImageFile(
     tonguePhotoInput,
     setTonguePhoto,
     tonguePhotoPreview,
-    confirmTonguePhoto,
-    openTonguePhotoCameraButton,
-    "Tongue photo captured. Preview check karke confirm tick kariye.",
-    "Retake Tongue Photo"
+    tonguePhotoPlaceholder,
+    tonguePhotoStatus,
+    "Take the tongue photo to continue.",
+    "Tongue photo ready. Preview dekho ya retake karo.",
+    document.getElementById("retakeTonguePhoto")
   );
-  updateTongueStatus();
 });
 
 tongueVideoInput.addEventListener("change", () => {
-  handleImageSelection(
-    tongueVideoInput,
-    setTongueVideo,
-    tongueVideoPreview,
-    confirmTongueVideo,
-    openTongueVideoCameraButton,
-    "Tongue video captured. Preview check karke confirm tick kariye.",
-    "Retake Tongue Video"
-  );
-  updateTongueStatus();
+  const file = tongueVideoInput.files?.[0] || null;
+  setTongueVideo(file);
+  setPreview(tongueVideoPreview, tongueVideoPlaceholder, file);
+  tongueVideoStatus.textContent = file
+    ? "Tongue video ready. Preview dekho ya retake karo."
+    : "You can record a tongue video or skip this step.";
+  const button = document.getElementById("retakeTongueVideo");
+  button.textContent = file ? button.dataset.retake : button.dataset.open;
+  updateReview();
 });
 
 faceFrontInput.addEventListener("change", () => {
-  handleImageSelection(
+  handleImageFile(
     faceFrontInput,
     setFaceFront,
     faceFrontPreview,
-    confirmFaceFront,
-    openFaceFrontCameraButton,
-    "Front face captured. Preview check karke confirm tick kariye.",
-    "Retake Front Face"
+    faceFrontPlaceholder,
+    faceFrontStatus,
+    "Take the front face photo to continue.",
+    "Front face ready. Preview dekho ya retake karo.",
+    document.getElementById("retakeFaceFront")
   );
-  updateFaceStatus();
 });
 
 faceLeftInput.addEventListener("change", () => {
-  handleImageSelection(
+  handleImageFile(
     faceLeftInput,
     setFaceLeft,
     faceLeftPreview,
-    confirmFaceLeft,
-    openFaceLeftCameraButton,
-    "Left face captured. Preview check karke confirm tick kariye.",
-    "Retake Left Face"
+    faceLeftPlaceholder,
+    faceLeftStatus,
+    "Take the left face photo to continue.",
+    "Left face ready. Preview dekho ya retake karo.",
+    document.getElementById("retakeFaceLeft")
   );
-  updateFaceStatus();
 });
 
 faceRightInput.addEventListener("change", () => {
-  handleImageSelection(
+  handleImageFile(
     faceRightInput,
     setFaceRight,
     faceRightPreview,
-    confirmFaceRight,
-    openFaceRightCameraButton,
-    "Right face captured. Preview check karke confirm tick kariye.",
-    "Retake Right Face"
+    faceRightPlaceholder,
+    faceRightStatus,
+    "Take the right face photo to continue.",
+    "Right face ready. Preview dekho ya retake karo.",
+    document.getElementById("retakeFaceRight")
   );
-  updateFaceStatus();
-});
-
-confirmVoice.addEventListener("change", () => {
-  if (confirmVoice.checked) {
-    recordingStatus.textContent = "Voice sample confirmed.";
-  } else if (recordedAudioBlob) {
-    recordingStatus.textContent = "Voice preview ready. Confirm tick kariye.";
-  }
 });
 
 resetCaptureState();
 updateFolderSupportState();
+showStep(1);

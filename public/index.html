@@ -10,153 +10,191 @@
     <main class="app-shell">
       <section class="hero-card">
         <p class="eyebrow">Patient Capture</p>
-        <h1>Capture tongue, voice, and face records in one mobile flow.</h1>
+        <h1>One step at a time.</h1>
         <p class="hero-copy">
-          Buttons will open the mobile camera directly. After every capture, preview dekho, confirm
-          tick karo, aur tabhi data device folder me save hoga.
+          Mobile camera directly khulega, preview dikhega, retake kar paoge, aur phir next step.
         </p>
       </section>
 
       <section class="form-card">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <p id="stepCounter" class="step-counter">Step 1 of 8</p>
+
         <form id="captureForm" class="capture-form">
-          <section class="setup-panel">
+          <section class="wizard-step active" data-step="1">
             <div class="section-header compact-header">
-              <h2>Device Folder</h2>
-              <p>Android Chrome or Edge can save directly into a chosen folder.</p>
+              <h2>Setup</h2>
+              <p>Choose device folder, enter patient ID, and select preferred face camera.</p>
             </div>
-            <div class="camera-actions">
-              <button type="button" id="chooseFolderButton">Choose Device Folder</button>
-            </div>
-            <p id="folderStatus" class="status-line">No device folder selected yet.</p>
-          </section>
 
-          <label class="field">
-            <span>Patient ID</span>
-            <input
-              type="text"
-              id="code"
-              name="code"
-              placeholder="Example: pat1"
-              autocomplete="off"
-              required
-            />
-          </label>
-
-          <div class="section-header">
-            <h2>Tongue Capture</h2>
-            <p>Buttons will open the mobile back camera for tongue photo or tongue video.</p>
-          </div>
-
-          <section class="camera-panel">
-            <input id="tonguePhotoInput" type="file" accept="image/*" capture="environment" hidden />
-            <input id="tongueVideoInput" type="file" accept="video/*" capture="environment" hidden />
-            <div class="camera-actions compact-grid">
-              <button type="button" id="openTonguePhotoCamera">Take Tongue Photo</button>
-              <button type="button" id="openTongueVideoCamera">Record Tongue Video</button>
-            </div>
-            <p id="tongueStatus" class="status-line">Take tongue photo or video, then confirm it.</p>
-            <div class="preview-grid two-up">
-              <div class="preview-card">
-                <span>Tongue Photo Preview</span>
-                <img id="tonguePhotoPreview" alt="Tongue photo preview" hidden />
-                <label class="confirm-row">
-                  <input type="checkbox" id="confirmTonguePhoto" disabled />
-                  <span>Confirm tongue photo</span>
-                </label>
+            <section class="setup-panel">
+              <div class="camera-actions">
+                <button type="button" id="chooseFolderButton">Choose Device Folder</button>
               </div>
-              <div class="preview-card">
-                <span>Tongue Video Preview</span>
-                <video id="tongueVideoPreview" controls playsinline hidden></video>
-                <label class="confirm-row">
-                  <input type="checkbox" id="confirmTongueVideo" disabled />
-                  <span>Confirm tongue video</span>
-                </label>
-              </div>
-            </div>
-          </section>
+              <p id="folderStatus" class="status-line">No device folder selected yet.</p>
+            </section>
 
-          <div class="section-header">
-            <h2>Voice Sample</h2>
-            <p>Record audio directly, then confirm the latest voice sample.</p>
-          </div>
-
-          <div class="voice-panel">
-            <div class="voice-actions">
-              <button type="button" id="startRecording">Start Recording</button>
-              <button type="button" id="stopRecording" disabled>Stop Recording</button>
-            </div>
-            <p id="recordingStatus" class="status-line">No voice sample recorded yet.</p>
-            <audio id="voicePreview" controls hidden></audio>
-            <label class="confirm-row">
-              <input type="checkbox" id="confirmVoice" disabled />
-              <span>Confirm voice sample</span>
+            <label class="field">
+              <span>Patient ID</span>
+              <input type="text" id="code" name="code" placeholder="Example: pat1" autocomplete="off" required />
             </label>
-          </div>
 
-          <div class="section-header">
-            <h2>Face Photos</h2>
-            <p>Select preferred mobile camera, take each face photo, preview it, then confirm.</p>
-          </div>
+            <label class="field">
+              <span>Face Camera Choice</span>
+              <select id="faceCameraMode">
+                <option value="environment">Back Camera</option>
+                <option value="user">Front Camera</option>
+              </select>
+            </label>
 
-          <label class="field">
-            <span>Face Camera Choice</span>
-            <select id="faceCameraMode">
-              <option value="environment">Back Camera</option>
-              <option value="user">Front Camera</option>
-            </select>
-          </label>
-
-          <section class="camera-panel">
-            <input id="faceFrontInput" type="file" accept="image/*" hidden />
-            <input id="faceLeftInput" type="file" accept="image/*" hidden />
-            <input id="faceRightInput" type="file" accept="image/*" hidden />
-            <div class="camera-actions compact-grid">
-              <button type="button" id="openFaceFrontCamera">Take Front Face</button>
-              <button type="button" id="openFaceLeftCamera">Take Left Face</button>
-              <button type="button" id="openFaceRightCamera">Take Right Face</button>
-            </div>
-            <p id="faceStatus" class="status-line">Capture front, left, and right face photos and confirm each.</p>
-            <div class="preview-grid three-up">
-              <div class="preview-card">
-                <span>Front Face</span>
-                <img id="faceFrontPreview" alt="Front face preview" hidden />
-                <label class="confirm-row">
-                  <input type="checkbox" id="confirmFaceFront" disabled />
-                  <span>Confirm front face</span>
-                </label>
-              </div>
-              <div class="preview-card">
-                <span>Left Face</span>
-                <img id="faceLeftPreview" alt="Left face preview" hidden />
-                <label class="confirm-row">
-                  <input type="checkbox" id="confirmFaceLeft" disabled />
-                  <span>Confirm left face</span>
-                </label>
-              </div>
-              <div class="preview-card">
-                <span>Right Face</span>
-                <img id="faceRightPreview" alt="Right face preview" hidden />
-                <label class="confirm-row">
-                  <input type="checkbox" id="confirmFaceRight" disabled />
-                  <span>Confirm right face</span>
-                </label>
-              </div>
+            <div class="step-actions">
+              <button type="button" id="goStep2" class="primary-button">Next</button>
             </div>
           </section>
 
-          <div class="notice">
-            <strong>Privacy note:</strong> This app captures sensitive personal media. Only use it
-            with consent and a protected device folder.
-          </div>
+          <section class="wizard-step" data-step="2">
+            <div class="section-header compact-header">
+              <h2>Tongue Photo</h2>
+              <p>Back camera khulega. Photo lo, preview dekho, ya retake karo.</p>
+            </div>
+            <input id="tonguePhotoInput" type="file" accept="image/*" capture="environment" hidden />
+            <div class="preview-large">
+              <img id="tonguePhotoPreview" alt="Tongue photo preview" hidden />
+              <div id="tonguePhotoPlaceholder" class="placeholder-card">No tongue photo yet</div>
+            </div>
+            <p id="tonguePhotoStatus" class="status-line">Take the tongue photo to continue.</p>
+            <div class="step-actions">
+              <button type="button" id="retakeTonguePhoto" class="secondary-button">Open Camera</button>
+              <button type="button" id="step2Back" class="ghost-button">Back</button>
+              <button type="button" id="step2Next" class="primary-button">Next</button>
+            </div>
+          </section>
 
-          <div class="submit-wrap">
-            <button type="submit" id="submitButton" class="submit-button">Save To Device Folder</button>
-          </div>
+          <section class="wizard-step" data-step="3">
+            <div class="section-header compact-header">
+              <h2>Tongue Video</h2>
+              <p>This step is optional. Record video if needed, otherwise skip.</p>
+            </div>
+            <input id="tongueVideoInput" type="file" accept="video/*" capture="environment" hidden />
+            <div class="preview-large">
+              <video id="tongueVideoPreview" controls playsinline hidden></video>
+              <div id="tongueVideoPlaceholder" class="placeholder-card">No tongue video yet</div>
+            </div>
+            <p id="tongueVideoStatus" class="status-line">You can record a tongue video or skip this step.</p>
+            <div class="step-actions">
+              <button type="button" id="retakeTongueVideo" class="secondary-button">Record Video</button>
+              <button type="button" id="step3Back" class="ghost-button">Back</button>
+              <button type="button" id="step3Next" class="primary-button">Next</button>
+            </div>
+          </section>
+
+          <section class="wizard-step" data-step="4">
+            <div class="section-header compact-header">
+              <h2>Voice Sample</h2>
+              <p>Record, listen to preview, and move ahead.</p>
+            </div>
+            <div class="voice-panel">
+              <div class="voice-actions">
+                <button type="button" id="startRecording">Start Recording</button>
+                <button type="button" id="stopRecording" disabled>Stop Recording</button>
+              </div>
+              <p id="recordingStatus" class="status-line">No voice sample recorded yet.</p>
+              <audio id="voicePreview" controls hidden></audio>
+            </div>
+            <div class="step-actions">
+              <button type="button" id="step4Back" class="ghost-button">Back</button>
+              <button type="button" id="step4Next" class="primary-button">Next</button>
+            </div>
+          </section>
+
+          <section class="wizard-step" data-step="5">
+            <div class="section-header compact-header">
+              <h2>Front Face</h2>
+              <p>Selected mobile camera khulega. Front face seedha rakhkar photo lo.</p>
+            </div>
+            <input id="faceFrontInput" type="file" accept="image/*" hidden />
+            <div class="preview-large">
+              <img id="faceFrontPreview" alt="Front face preview" hidden />
+              <div id="faceFrontPlaceholder" class="placeholder-card">No front face photo yet</div>
+            </div>
+            <p id="faceFrontStatus" class="status-line">Take the front face photo to continue.</p>
+            <div class="step-actions">
+              <button type="button" id="retakeFaceFront" class="secondary-button">Open Camera</button>
+              <button type="button" id="step5Back" class="ghost-button">Back</button>
+              <button type="button" id="step5Next" class="primary-button">Next</button>
+            </div>
+          </section>
+
+          <section class="wizard-step" data-step="6">
+            <div class="section-header compact-header">
+              <h2>Left Face</h2>
+              <p>Ab left side dikha kar photo lo.</p>
+            </div>
+            <input id="faceLeftInput" type="file" accept="image/*" hidden />
+            <div class="preview-large">
+              <img id="faceLeftPreview" alt="Left face preview" hidden />
+              <div id="faceLeftPlaceholder" class="placeholder-card">No left face photo yet</div>
+            </div>
+            <p id="faceLeftStatus" class="status-line">Take the left face photo to continue.</p>
+            <div class="step-actions">
+              <button type="button" id="retakeFaceLeft" class="secondary-button">Open Camera</button>
+              <button type="button" id="step6Back" class="ghost-button">Back</button>
+              <button type="button" id="step6Next" class="primary-button">Next</button>
+            </div>
+          </section>
+
+          <section class="wizard-step" data-step="7">
+            <div class="section-header compact-header">
+              <h2>Right Face</h2>
+              <p>Ab right side dikha kar photo lo.</p>
+            </div>
+            <input id="faceRightInput" type="file" accept="image/*" hidden />
+            <div class="preview-large">
+              <img id="faceRightPreview" alt="Right face preview" hidden />
+              <div id="faceRightPlaceholder" class="placeholder-card">No right face photo yet</div>
+            </div>
+            <p id="faceRightStatus" class="status-line">Take the right face photo to continue.</p>
+            <div class="step-actions">
+              <button type="button" id="retakeFaceRight" class="secondary-button">Open Camera</button>
+              <button type="button" id="step7Back" class="ghost-button">Back</button>
+              <button type="button" id="step7Next" class="primary-button">Next</button>
+            </div>
+          </section>
+
+          <section class="wizard-step" data-step="8">
+            <div class="section-header compact-header">
+              <h2>Review & Save</h2>
+              <p>Sab previews check karo. Agar kuch change karna ho to back jao, warna save karo.</p>
+            </div>
+
+            <div class="review-list">
+              <div class="review-row"><span>Patient ID</span><strong id="reviewPatientId">-</strong></div>
+              <div class="review-row"><span>Device Folder</span><strong id="reviewFolder">-</strong></div>
+              <div class="review-row"><span>Tongue Photo</span><strong id="reviewTonguePhoto">Pending</strong></div>
+              <div class="review-row"><span>Tongue Video</span><strong id="reviewTongueVideo">Skipped</strong></div>
+              <div class="review-row"><span>Voice</span><strong id="reviewVoice">Pending</strong></div>
+              <div class="review-row"><span>Front Face</span><strong id="reviewFaceFront">Pending</strong></div>
+              <div class="review-row"><span>Left Face</span><strong id="reviewFaceLeft">Pending</strong></div>
+              <div class="review-row"><span>Right Face</span><strong id="reviewFaceRight">Pending</strong></div>
+            </div>
+
+            <div class="notice">
+              <strong>Privacy note:</strong> This app captures sensitive personal media. Only use it
+              with consent and a protected device folder.
+            </div>
+
+            <div class="step-actions">
+              <button type="button" id="step8Back" class="ghost-button">Back</button>
+              <button type="submit" id="saveButton" class="submit-button">Save To Device Folder</button>
+            </div>
+          </section>
         </form>
 
         <section class="result-card">
           <h2>Submission Status</h2>
-          <p id="resultMessage">Waiting for capture.</p>
+          <p id="resultMessage">Waiting to start.</p>
         </section>
       </section>
     </main>

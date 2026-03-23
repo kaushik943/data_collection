@@ -39,17 +39,7 @@
             <label class="field">
               <span>Patient ID</span>
               <input type="text" id="code" name="code" placeholder="Example: pat1" autocomplete="off" required />
-            </label>
-
-            <label class="field">
-              <span>Face Camera Choice</span>
-              <select id="faceCameraMode">
-                <option value="environment">Back Camera</option>
-                <option value="user">Front Camera</option>
-              </select>
-            </label>
-
-            <div class="step-actions">
+            </label><div class="step-actions">
               <button type="button" id="goStep2" class="primary-button">Next</button>
             </div>
           </section>
@@ -59,7 +49,7 @@
               <h2>Tongue Photo</h2>
               <p>Back camera khulega. Photo lo, preview dekho, ya retake karo.</p>
             </div>
-            <input id="tonguePhotoInput" type="file" accept="image/*" capture="environment" hidden />
+            <input id="tonguePhotoInput" type="file" accept="image/*" hidden />
             <div class="preview-large">
               <img id="tonguePhotoPreview" alt="Tongue photo preview" hidden />
               <div id="tonguePhotoPlaceholder" class="placeholder-card">No tongue photo yet</div>
@@ -77,7 +67,7 @@
               <h2>Tongue Video</h2>
               <p>This step is optional. Record video if needed, otherwise skip.</p>
             </div>
-            <input id="tongueVideoInput" type="file" accept="video/*" capture="environment" hidden />
+            <input id="tongueVideoInput" type="file" accept="video/*" hidden />
             <div class="preview-large">
               <video id="tongueVideoPreview" controls playsinline hidden></video>
               <div id="tongueVideoPlaceholder" class="placeholder-card">No tongue video yet</div>
@@ -202,4 +192,5 @@
     <script src="/app.js"></script>
   </body>
 </html>
+
 

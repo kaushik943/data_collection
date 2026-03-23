@@ -461,8 +461,8 @@ function setButtonLabels() {
 
 setButtonLabels();
 
-wireStepButton("retakeTonguePhoto", () => triggerNativeCamera(tonguePhotoInput, "environment"));
-wireStepButton("retakeTongueVideo", () => triggerNativeCamera(tongueVideoInput, "environment"));
+wireStepButton("retakeTonguePhoto", () => triggerNativeCamera(tonguePhotoInput));
+wireStepButton("retakeTongueVideo", () => triggerNativeCamera(tongueVideoInput));
 wireStepButton("retakeFaceFront", () => openFaceCapture(faceFrontInput));
 wireStepButton("retakeFaceLeft", () => openFaceCapture(faceLeftInput));
 wireStepButton("retakeFaceRight", () => openFaceCapture(faceRightInput));
@@ -538,3 +538,4 @@ faceRightInput.addEventListener("change", () => {
 resetCaptureState();
 updateFolderSupportState();
 showStep(1);
+

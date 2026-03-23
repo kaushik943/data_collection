@@ -6,7 +6,6 @@ const resultMessage = document.getElementById("resultMessage");
 const chooseFolderButton = document.getElementById("chooseFolderButton");
 const folderStatus = document.getElementById("folderStatus");
 const codeInput = document.getElementById("code");
-const faceCameraMode = document.getElementById("faceCameraMode");
 const saveButton = document.getElementById("saveButton");
 
 const tonguePhotoInput = document.getElementById("tonguePhotoInput");
@@ -157,7 +156,7 @@ function triggerNativeCamera(input, mode) {
 }
 
 function openFaceCapture(input) {
-  triggerNativeCamera(input, faceCameraMode.value);
+  triggerNativeCamera(input);
 }
 
 function updateReview() {
@@ -387,7 +386,6 @@ async function submitForm(event) {
 
 chooseFolderButton.addEventListener("click", chooseDeviceFolder);
 codeInput.addEventListener("input", updateReview);
-faceCameraMode.addEventListener("change", updateReview);
 
 function wireStepButton(id, handler) {
   const element = document.getElementById(id);
